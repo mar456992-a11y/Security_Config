@@ -1,54 +1,76 @@
 package com.example.security_config.service.impl;
 
-import com.example.security_config.model.entity.Auth;
+import com.example.security_config.jwt.JwtService;
 import com.example.security_config.model.request.LoginRequest;
 import com.example.security_config.model.request.RegisterRequest;
 import com.example.security_config.model.response.LoginResponse;
 import com.example.security_config.service.AuthService;
+import com.example.security_config.model.entity.Auth;
+import com.example.security_config.repository.AuthRepo;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
+    private final AuthRepo authRepo;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
+
+    @Override
+    public UserDetails loadUserByUsername(String email) {
+        Auth  auth = AuthRepo.findByEmail(email);
+        if(auth == null) {
+            throw new UsernameNotFoundException("user not found with this email" + email);
+        }
+
+        return auth;
+    }
 
     @Override
     public Auth register(RegisterRequest registerRequest) {
-
         Auth auth = new Auth();
-        auth.setFullName(registerRequest.getUserName());
+        auth.setUserName(registerRequest.getUserName());
         auth.setEmail(registerRequest.getEmail());
-        auth.setPassword(registerRequest.getPassword());
-
-        // TODO: save to database later
-        return auth;
+        auth.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+        auth.setCreatedAt(registerRequest.getCreatedAt());
+        auth.setTokenVersion(0);
+        return authRepo.register(auth);
     }
 
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
+        Auth auth = AuthRepo.findByEmail(loginRequest.getEmail());
+        if(auth == null) {
+            throw new UsernameNotFoundException("user not found with this email" + loginRequest.getEmail());
+        }
+        if(!passwordEncoder.matches(loginRequest.getPassword(), auth.getPassword())) {
+            throw new UsernameNotFoundException("password not match");
+        }
+        String token = jwtService.generateToken(auth);
 
-        // TODO: validate user + generate JWT later
         return LoginResponse.builder()
-                .token("dummy-token")
-                .message("Login successful")
+                .token(token)
                 .build();
     }
+
 
     @Override
     public Object logoutAll(String email) {
 
-        // TODO: implement token invalidation later
-        return "Logout success for " + email;
+        System.out.println(" EMAIL FROM TOKEN = [" + email + "]");
+
+        Auth auth = AuthRepo.findByEmail(email);
+
+        if (auth == null) {
+            System.out.println(" DB RETURNED NULL for email = [" + email + "]");
+            throw new RuntimeException("User not found");
+        }
+
+        return authRepo.incrementTokenVersion(auth.getUserId());
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-
-        // TODO: fetch user from database
-        Auth auth = new Auth();
-        auth.setEmail(email);
-        auth.setPassword("123");
-
-        return auth;
-    }
 }

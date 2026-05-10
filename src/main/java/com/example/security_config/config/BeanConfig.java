@@ -10,10 +10,12 @@ public class BeanConfig {
 
     @Bean
     ModelMapper modelMapper(){
+
         return new ModelMapper();
     }
     @Bean
     BCryptPasswordEncoder passwordEncoder(){
+
         return new BCryptPasswordEncoder();
     }
 }

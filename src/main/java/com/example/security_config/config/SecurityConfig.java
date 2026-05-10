@@ -4,11 +4,9 @@ package com.example.security_config.config;
 import com.example.security_config.jwt.JwtAuthEntryPoint;
 import com.example.security_config.jwt.JwtAuthFilter;
 import com.example.security_config.service.AuthService;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -26,7 +24,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
-@Configurable
+@Configuration
 @RequiredArgsConstructor
 @EnableTransactionManagement
 public class SecurityConfig {
