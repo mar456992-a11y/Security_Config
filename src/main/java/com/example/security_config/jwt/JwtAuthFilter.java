@@ -1,6 +1,5 @@
 package com.example.security_config.jwt;
 
-
 import com.example.security_config.model.entity.Auth;
 import com.example.security_config.repository.AuthRepo;
 import com.example.security_config.service.AuthService;
@@ -25,7 +24,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final AuthService authService;
-    private final AuthRepo authRepo; // 🔥 needed for logout-all check
+    private final AuthRepo authRepo;
 
     @Override
     protected void doFilterInternal(
@@ -55,7 +54,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
             UserDetails userDetails = authService.loadUserByUsername(email);
 
-            Auth auth = AuthRepo.findByEmail(email);
+            Auth auth = authRepo.findByEmail(email);
 
             if (auth == null) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -64,7 +63,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
             Integer tokenVersion = jwtService.extractVersion(token);
 
-            if (!tokenVersion.equals(auth.getTokenVersion())) {
+            if (tokenVersion == null ||
+                    !tokenVersion.equals(auth.getTokenVersion())) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }
@@ -88,5 +88,4 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
-
 }

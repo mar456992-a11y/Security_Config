@@ -8,9 +8,7 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-
-
-@OpenAPIDefinition(info = @Info(title = "My API",
+@OpenAPIDefinition(info = @Info(title = "My Security Config API",
         version = "v1",
         description = "This is description"))
 @SecurityScheme(

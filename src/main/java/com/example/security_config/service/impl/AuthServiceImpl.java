@@ -22,13 +22,15 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public UserDetails loadUserByUsername(String email) {
-        Auth  auth = AuthRepo.findByEmail(email);
+        Auth  auth = authRepo.findByEmail(email);
         if(auth == null) {
             throw new UsernameNotFoundException("user not found with this email" + email);
         }
 
         return auth;
     }
+
+    // Register
 
     @Override
     public Auth register(RegisterRequest registerRequest) {
@@ -41,9 +43,11 @@ public class AuthServiceImpl implements AuthService {
         return authRepo.register(auth);
     }
 
+    // Login
+
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
-        Auth auth = AuthRepo.findByEmail(loginRequest.getEmail());
+        Auth auth = authRepo.findByEmail(loginRequest.getEmail());
         if(auth == null) {
             throw new UsernameNotFoundException("user not found with this email" + loginRequest.getEmail());
         }
@@ -57,16 +61,17 @@ public class AuthServiceImpl implements AuthService {
                 .build();
     }
 
+// Logout All
 
     @Override
     public Object logoutAll(String email) {
 
         System.out.println(" EMAIL FROM TOKEN = [" + email + "]");
 
-        Auth auth = AuthRepo.findByEmail(email);
+        Auth auth = authRepo.findByEmail(email);
 
         if (auth == null) {
-            System.out.println(" DB RETURNED NULL for email = [" + email + "]");
+            System.out.println("DB RETURNED NULL for email = [" + email + "]");
             throw new RuntimeException("User not found");
         }
 

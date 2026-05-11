@@ -1,5 +1,4 @@
 package com.example.security_config.controller;
-
 import com.example.security_config.model.entity.Auth;
 import com.example.security_config.model.request.LoginRequest;
 import com.example.security_config.model.request.RegisterRequest;
@@ -9,28 +8,40 @@ import com.example.security_config.repository.AuthRepo;
 import com.example.security_config.service.AuthService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
+import org.apache.ibatis.annotations.Result;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping ("/api/v1/auths")
+@RequestMapping("/api/v1/auths")
 public class AuthController {
 
     private final AuthService authService;
     private final AuthRepo authRepo;
+
+
+    // Register
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<Auth>> register(@RequestBody RegisterRequest registerRequest){
         Auth auth = authService.register(registerRequest);
         return ResponseEntity.status(HttpStatus.OK).body(
-                new ApiResponse<>("register successfully",auth, HttpStatus.OK.value(), LocalDateTime.now())
+                new ApiResponse<>("register successfully",auth,HttpStatus.OK.value(), LocalDateTime.now())
         );
     }
 
+
+    // Login
     @PostMapping("/login")
 
     public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest loginRequest){
@@ -39,6 +50,9 @@ public class AuthController {
                 new ApiResponse<>("login successfully",response,HttpStatus.OK.value(), LocalDateTime.now())
         );
     }
+
+
+    // Logout
     @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/logout-all")
     public ResponseEntity<ApiResponse<Object>> logoutAll() {
@@ -61,4 +75,6 @@ public class AuthController {
                 )
         );
     }
+
+
 }
